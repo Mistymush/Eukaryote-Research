@@ -1,0 +1,7 @@
+#ignore data
+*.tsv
+*.csv
+
+/.idea
+/Feb26_2017_Study4_Redone
+/StatLogsTest
