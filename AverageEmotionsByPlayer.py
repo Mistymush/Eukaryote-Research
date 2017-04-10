@@ -3,6 +3,7 @@ import os
 import sys
 import re
 import csv
+import numpy as np
 
 walk_dir = sys.argv[1]
 # save_dir = sys.argv[2]
@@ -33,37 +34,41 @@ def recordSingleLog(file_path, Current_ID):
     if (m_f_name):
         new_file_name = m_f_name.group(0)
 
-
+    #open current tst file
     with open(file_path) as f:
 
         tsvin = csv.reader(f, delimiter='\t');
-        i = 0
+
+        #filter data for columns with floats and rows that are defined
+        #NOTE: Should reject files under a certain threshold of data.
+        local_imotions_tsv = []
+        header = True;
+        for line in tsvin:
+            if header:
+                header = False
+            else:
+                for i in range (19, 83):
+                    if line[i]:
+                        line[i] = float(line[i])
+                if line[19]:
+                    local_imotions_tsv.append(line[19:83])
+
+
+        #Create Numpy array
+        numpy_imotions_tsv = np.array(local_imotions_tsv)
+
+        means = np.mean(numpy_imotions_tsv, axis=0)
+        standard_deviations = np.std(numpy_imotions_tsv, axis=0)
+
+        print(means)
+        print(standard_deviations)
+
+        for row in
 
         cur_row = ["Player_" + str(Current_ID), new_file_name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        for line in tsvin:
+        quit()
 
-            if i > 0:
-                for j in range(2, 14):
-
-                    cur_val = line[19 + (2 * (j - 2))]
-                    if(cur_val and float(cur_val) > 0):
-                        cur_row[j] = (float(cur_val) + cur_row[j])/2;
-                    elif(cur_val):
-                        cur_row[j] = (0 + cur_row[j]) / 2;
-
-
-            i = i + 1
-
-        single_file_columns.append(cur_row)
-        """
-        f_o = open("CleanOut/" + new_file_name[:-4] + ".tsv", 'w')
-        for row in single_file_columns:
-            write_line = ""
-
-            write_line += row
-            f_o.write(write_line)
-        """
 
 count = 1
 
@@ -81,9 +86,10 @@ for root, subdirs, files in os.walk(walk_dir):
         file_path = os.path.join(root, filename)
 
         if ".tsv" in filename:
+            print(file_path)
             recordSingleLog(file_path, count)
             count = count + 1
-            print(file_path)
+
 
 # write to whatever
 # write one mondo file
