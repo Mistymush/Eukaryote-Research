@@ -38,7 +38,6 @@ def recordSingleLog(file_path, Current_ID):
 
     #open current tst file
     with open(file_path) as f:
-
         tsvin = csv.reader(f, delimiter='\t');
 
         #filter data for columns with floats and rows that are defined
@@ -77,22 +76,23 @@ def recordSingleLog(file_path, Current_ID):
 
         zscored_vals = stats.zscore(numpy_imotions_tsv, axis=0)
 
-        #print(means)
+        print(means)
         #print(standard_deviations)
 
         cur_row = ["Player_" + str(Current_ID), new_file_name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        imotions_id = new_file_name[8:]
-        imotions_id = imotions_id[:-4]
+        #imotions_id = new_file_name[8:]
+        #imotions_id = imotions_id[:-4]
 
-        if(len(zscored_vals ) > 40):
-            sample_Z_scores(zscored_vals, imotions_tsv_unsliced, imotions_id, undefined_frame_indexs)
+        #if(len(zscored_vals ) > 40):
+        #   sample_Z_scores(zscored_vals, imotions_tsv_unsliced, imotions_id, undefined_frame_indexs)
 
         #quit()
 
 
 count = 1
 
+"""
 #row of 64 nones, which is inserted into the zscored_vals array for each player to add back in undefined frames for sampling
 junk_row = []
 for i in range(0, 64):
@@ -167,7 +167,7 @@ def sample_Z_scores(zscored_vals, raw_data, imotions_id, undefined_frame_indexs)
 
     if((len(zscored_vals)) != len(raw_data)):
         print("Error! Zscore and Data file did not line up")
-
+"""
 
 # Recursive walk folders
 for root, subdirs, files in os.walk(walk_dir):
@@ -201,6 +201,6 @@ for row in single_file_columns:
 
 print('Total FIles Oppend: ' + str(count))
 
-print(np.mean(player_joy_bucket_means))
+#print(np.mean(player_joy_bucket_means))
 
 f_o.close()
