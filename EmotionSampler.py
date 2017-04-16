@@ -37,6 +37,7 @@ def recordSingleLog(file_path, Current_ID):
         new_file_name = m_f_name.group(0)
 
     #open current tst file
+
     with open(file_path) as f:
 
         tsvin = csv.reader(f, delimiter='\t');
@@ -53,9 +54,8 @@ def recordSingleLog(file_path, Current_ID):
 
         count = 0
         for line in tsvin:
-            if header:
-                header = False
-                count += 1
+            if (count < 6):
+                pass
             else:
                 for i in range (19, 83):
                     if line[i]:
@@ -66,7 +66,8 @@ def recordSingleLog(file_path, Current_ID):
                 else:
                     undefined_frame_indexs.append(count);
                     imotions_tsv_unsliced.append(line)
-                count += 1
+
+            count += 1
 
 
         #Create Numpy array
@@ -106,19 +107,16 @@ def sample_Z_scores(zscored_vals, raw_data, imotions_id, undefined_frame_indexs)
     #Get log data for current player
     current_player_log = []
 
-    with open("Study4_StatLog_WithID.csv") as f:
+    with open("StudySix_logdata.csv") as f:
         tsvin_log = csv.reader(f);
 
         for line in tsvin_log:
             if line[8] == imotions_id:
                 current_player_log.append(line);
 
-
-
-
     #Re-Add empty data rows to zscored data
     for val in undefined_frame_indexs:
-        zscored_vals = np.insert(zscored_vals,val - 1, junk_row, axis=0)
+        zscored_vals = np.insert(zscored_vals,val - 6, junk_row, axis=0)
 
 
     #at this point zscored vals is aligned with raw data other than header

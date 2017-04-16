@@ -67,7 +67,7 @@ for root, subdirs, files in os.walk(walk_dir):
     for filename in files:
         file_path = os.path.join(root, filename)
 	
-        if ".txt" in filename:
+        if ".tsv" in filename:
             recordSingleLog(file_path, count)
             count = count + 1
             print(file_path)
