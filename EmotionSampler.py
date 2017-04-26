@@ -7,6 +7,27 @@ import numpy as np
 import math
 from scipy import stats
 
+"""
+x = np.zeros(0)
+z = []
+
+a = np.zeros(5)
+b = np.zeros(3)
+print(a)
+print(b)
+print(x)
+
+x = np.append(x, a)
+x = np.append(x, b)
+z.append(a)
+z.append(b)
+
+print(x)
+print(z)
+
+sys.exit()
+"""
+
 walk_dir = sys.argv[1]
 # save_dir = sys.argv[2]
 
@@ -25,6 +46,7 @@ single_file_columns = [['"Display Name"','"File Name"','"Joy Evidence"','"Anger 
 
 # parse individual file
 def recordSingleLog(file_path, Current_ID):
+
     row = [Current_ID, 0, 0, 0, 0, 0, 0, False]
     line_count = 0
     row_count = 0
@@ -73,13 +95,7 @@ def recordSingleLog(file_path, Current_ID):
         #Create Numpy array
         numpy_imotions_tsv = np.array(imotions_tsv_sliced)
 
-        means = np.mean(numpy_imotions_tsv, axis=0)
-        standard_deviations = np.std(numpy_imotions_tsv, axis=0)
-
         zscored_vals = stats.zscore(numpy_imotions_tsv, axis=0)
-
-        #print(means)
-        #print(standard_deviations)
 
         cur_row = ["Player_" + str(Current_ID), new_file_name, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -87,9 +103,10 @@ def recordSingleLog(file_path, Current_ID):
         imotions_id = imotions_id[:-4]
 
         if(len(zscored_vals ) > 40):
-            sample_Z_scores(zscored_vals, imotions_tsv_unsliced, imotions_id, undefined_frame_indexs)
+            return sample_Z_scores(zscored_vals, imotions_tsv_unsliced, imotions_id, undefined_frame_indexs)
+        else:
+            return np.zeros(0)
 
-        #quit()
 
 
 count = 1
@@ -99,15 +116,13 @@ junk_row = []
 for i in range(0, 64):
     junk_row.append(None)
 
-player_joy_bucket_means = []
-
 #function which samples the Z-Scored values by log file level completion time.
 def sample_Z_scores(zscored_vals, raw_data, imotions_id, undefined_frame_indexs):
 
     #Get log data for current player
     current_player_log = []
 
-    with open("StudySix_logdata.csv") as f:
+    with open("Study4_logdata.csv") as f:
         tsvin_log = csv.reader(f);
 
         for line in tsvin_log:
@@ -160,11 +175,15 @@ def sample_Z_scores(zscored_vals, raw_data, imotions_id, undefined_frame_indexs)
 
     bucketed_joy = np.delete(bucketed_joy, indexs_to_kill)
 
+    SinglePlayerJoyBucketAverages = np.zeros(0)
+
     if(len(bucketed_joy) > 0):
-        player_joy_bucket_means.append(np.mean(bucketed_joy))
+        SinglePlayerJoyBucketAverages = np.append(SinglePlayerJoyBucketAverages, bucketed_joy)
 
     if((len(zscored_vals)) != len(raw_data)):
         print("Error! Zscore and Data file did not line up")
+
+    return SinglePlayerJoyBucketAverages
 
 
 # Recursive walk folders
@@ -177,14 +196,19 @@ for root, subdirs, files in os.walk(walk_dir):
     # for subdir in subdirs:
     # print('\t- subdirectory ' + subdir)
 
+    JoyBucketAverages = np.zeros(0)
+
     for filename in files:
         file_path = os.path.join(root, filename)
 
         if ".tsv" in filename:
             print(file_path)
-            recordSingleLog(file_path, count)
+            JoyBucketAverages = np.append(JoyBucketAverages, recordSingleLog(file_path, count))
             count = count + 1
 
+    print("length of player bucketed joy: " + str(len(JoyBucketAverages)));
+    print(np.mean(JoyBucketAverages))
+    print(JoyBucketAverages)
 
 # write to whatever
 # write one mondo file
@@ -197,8 +221,8 @@ for row in single_file_columns:
     f_o.write(write_line[:-1] + '\n')
 
 
-print('Total FIles Oppend: ' + str(count))
+#print('Total FIles Oppend: ' + str(count))
 
-print(np.mean(player_joy_bucket_means))
+
 
 f_o.close()
